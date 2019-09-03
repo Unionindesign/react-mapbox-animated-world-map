@@ -105,18 +105,19 @@ class WorldMap extends Component {
 				},
 				duration,
 				duration,
-				this.onCompleteAll
+				//this.onCompleteAll
 			)
 			.staggerTo(
 				this.MapMarkers,
 				2,
 				{ scale: 1 },
 				duration,
-				this.onCompleteAll
+				//this.onCompleteAll
 			)
 			.play();
 	};
   onCompleteAll() {
+    //removed this callback from the timeline...short data set and the console.log is pretty chatty
 		console.log("Animation complete");
   };
   //slider callbacks
