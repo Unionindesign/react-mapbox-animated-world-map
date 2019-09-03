@@ -12,28 +12,30 @@ class App extends Component {
   constructor() {
     super();
     this.state = {
-     cities: []
+     cities: [],
+     loadingData: false
     };
   }
   componentDidMount(){
+    // console.log("Hey")
     this.getWorldCitiiesData()
   }
   getWorldCitiiesData(){
     		this.setState({ loadingData: true }, () => {
 			const Papa = require("papaparse");
-      const dataFilePath = "https://github.com/Unionindesign/react-mapbox-animated-world-map/blob/master/worldcities.csv"
+      const file = "data/worldcities.csv"
 				return new Promise(resolve => {
-				Papa.parse(dataFilePath, {
-					download: true,
-          /delimiter: ",",
+				Papa.parse(file, {
+					//download: true,
+          //delimiter: ",",
 					header: false, //Don't use column names from 1st row in csv! These are assigned when creating Keys for JSON below!
 					skipEmptyLines: true,
-					complete: result => {
+					complete: results => {
 							console.log(
 							"--------\n" +
-								"raw data: " +
+								"raw data: " + JSON.stringify(results) +
 							
-								"\n--------" + JSON.stringify(result)
+								"\n--------" + results.data
 						);
             resolve(result)
 						let mapData = result.data.map(city => {
@@ -41,13 +43,13 @@ class App extends Component {
 								id: city[11],
                 city: city[0],
                 lat: city[2],
-                lng: city.lng
+                lng: city[3]
 
 							};
               
 						});
 					console.log("Map Data: ", mapData)
-						this.setState({cities: mapData})
+						this.setState({cities: mapData, loadingData: false})
           }
 				});
 			});
