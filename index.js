@@ -15,6 +15,43 @@ class App extends Component {
      
     };
   }
+  componentDidMount(){
+    this.getWorldCitiiesData()
+  }
+  getWorldCitiiesData(){
+    		this.setState({ loadingData: true }, () => {
+			const Papa = require("papaparse");
+		("../../data/mapDataV.csv");
+			return new Promise(resolve => {
+				Papa.parse("./worldcities.csv", {
+					//download: true,
+					header: false, //Don't use column names from 1st row in csv! These are assigned when creating Keys for JSON below!
+					skipEmptyLines: true,
+					complete: result => {
+							console.log(
+							"--------\n" +
+								"Map data: " +
+							
+								"\n--------" + result.data
+						);
+
+						let mapData = result.data.map(city => {
+							return {
+								id: city[11],
+                city: city[0],
+                lat: city.lat,
+                lng: city.lng
+
+							};
+              
+						});
+					console.log("Map Data: ", mapData)
+						
+					}
+				});
+			});
+		});
+	}
 
   render() {
     return (
