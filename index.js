@@ -26,17 +26,18 @@ class App extends Component {
   }
   //Mapbox viewport for resize, zoom pan etc
 	_onViewportChange = viewport => {
+    this.setState({ viewport });
 		//TODO timeline restarts on viewport change with zoom, panning...
 		//viewport function always run on initial load, this.tl will be null
-		if (_.isNull(this.tl)) {
-			console.log("tl is null on viewport change");
-			this.setState({ viewport });
-		} else {
-			//if there's a valid timeline instance, pause and resume it
-			console.log("tl is valid on viewport change, pause and resume");
-			this.tl.pause().resume();
-			this.setState({ viewport });
-		}
+		// if (_.isNull(this.tl)) {
+		// 	console.log("tl is null on viewport change");
+		// 	this.setState({ viewport });
+		// } else {
+		// 	//if there's a valid timeline instance, pause and resume it
+		// 	console.log("tl is valid on viewport change, pause and resume");
+		// 	this.tl.pause().resume();
+		// 	this.setState({ viewport });
+		// }
 	};
 
   render() {
