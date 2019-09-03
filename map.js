@@ -3,11 +3,25 @@ import MapGL, { Marker } from "react-map-gl";
 import { render } from 'react-dom';
 import './style.css';
 import { TimelineMax, TweenMax, Power3 } from "gsap";
-//import _ from "lodash"
+import Tooltip from "@material-ui/core/Tooltip";
+import Fab from "@material-ui/core/Fab";
+import PlayIcon from "@material-ui/icons/PlayArrow";
+import PauseIcon from "@material-ui/icons/Pause";
+import ReverseIcon from "@material-ui/icons/FastRewind";
+import RestartIcon from "@material-ui/icons/SkipPrevious";
+import Slider from "rc-slider";
+import "rc-slider/assets/index.css";
+import _ from "lodash"
 
 //mapbox public access token - in their docs here:
 //https://docs.mapbox.com/help/glossary/access-token/
 const TOKEN = "pk.eyJ1Ijoic3RlcGhlbi1tYXJzaGFsbCIsImEiOiJjanB2aWxlNWMwMHV3NDJrajNqN3Jueml4In0.s4SlplYZB-deWizN2jBF8g"
+
+const sliderStyle = {
+	width: "85%",
+	margin: "1% 5% 0% 5%",
+	position: "absolute",
+};
 
 class WorldMap extends Component {
   constructor() {
@@ -24,39 +38,44 @@ class WorldMap extends Component {
 				zoom: 1,
 				pitch: 0
 			},
+      sliderValue: 0
     };
     //timeline instance
     this.tl = null;
+    // timeline callback
+		this.updateSlider = this.updateSlider.bind(this);
+		//whale animation for large bookings
+		//this.theWhale = this.theWhale.bind(this);
+
+		// slider callbacks
+		this.onSliderChange = this.onSliderChange.bind(this);
+		this.onAfterChange = this.onAfterChange.bind(this);
   }
-  //Mapbox viewport for resize, zoom pan etc
-	_onViewportChange = viewport => {
-    this.setState({ viewport });
-		//TODO timeline restarts on viewport change with zoom, panning...
-		//viewport function always run on initial load, this.tl will be null
-		// if (_.isNull(this.tl)) {
-		// 	console.log("tl is null on viewport change");
-		// 	this.setState({ viewport });
-		// } else {
-		// 	//if there's a valid timeline instance, pause and resume it
-		// 	console.log("tl is valid on viewport change, pause and resume");
-		// 	this.tl.pause().resume();
-		// 	this.setState({ viewport });
-		// }
-	};
+ 
   componentDidMount(){
     //console.log("Props Check: ", this.props.cities)
+    //animations won't work when called in didMount
+    //this.animateMapMarkers()
+    console.log("========\n Mounted \n========\n")
+    
+  }
+  componentDidUpdate(){
+    console.log("========\n Updated \n========\n")
     this.animateMapMarkers()
+    console.log("Progress on update: ", this.tl.progress())
   }
   animateMapMarkers(){
     this.tl = new TimelineMax({
-			//onUpdate: this.timelineProgressChecker,
+      //Creates infinte loop as timeline is undefined?
+			//onUpdate: this.updateSlider,
+      //adding scope or params not helping
 			// onUpdateParams: ["{self}"],
 			// onUpdateScope: this,
 			repeat: -1,
 			paused: true
 		});
 		// let numBookings = this.props.onTheMap.length;
-		let duration = this.props.timelineDelay / numBookings;
+		let duration = 5;
 		this.tl
 			.staggerFromTo(
 				this.MapMarkers,
@@ -100,9 +119,52 @@ class WorldMap extends Component {
   onCompleteAll() {
 		console.log("Animation complete");
   };
+  //slider callbacks
+	onSliderChange(value) {
+		this.tl.progress(value / this.props.cities.length);
+	}
+	onAfterChange(value) {
+		console.log("Slider value: ", value);
+		this.setState({ sliderValue: value });
+		this.tl.play();
+	}
+	onCompleteAll() {
+		console.log("Animation complete");
+	}
+	updateSlider() {
+		if (_.isUndefined(this.tl)) {
+			return null;
+			console.log("Timeline Undefined");
+			setTimeout(this.updateSlider.bind(this), 0.5);
+		} else if (_.isNull(this.tl)) {
+			return null;
+			console.log("Timeline is null");
+			setTimeout(this.updateSlider.bind(this), 0.5);
+		} else {
+		this.setState({
+			//...this.state.sliderValue,
+			sliderValue: Math.round(this.tl.progress() * this.props.cities.length)
+		});
+		}
+	}
+   //Mapbox viewport for resize, zoom pan etc
+	_onViewportChange = viewport => {
+   // this.setState({ viewport });
+		//TODO timeline restarts on viewport change with zoom, panning...
+		//viewport function always run on initial load, this.tl will be null
+		if (_.isNull(this.tl)) {
+			console.log("tl is null on viewport change");
+			this.setState({ viewport });
+		} else {
+			//if there's a valid timeline instance, pause and resume it
+			console.log("tl is valid on viewport change, pause and resume");
+      //Does not work to pause and resume timeline when user interacts with map?
+			this.tl.pause().resume();
+			this.setState({ viewport });
+		}
+	};
   
   	markersizer = pop => {
-      //let pop = pop.replace(/,/g, '')
 		if (pop < 600000) {
 			return 2;
 		} else if (pop >= 600000 && pop <= 750000) {
@@ -122,11 +184,11 @@ class WorldMap extends Component {
 
   render() {
     return (
-      <div>
+      <div className="mapContainer">
        <MapGL
 					mapboxApiAccessToken={TOKEN}
 					{...this.state.viewport}
-					viewport={this.state.viewport}
+					//viewport={this.state.viewport}
 					mapStyle="mapbox://styles/mapbox/dark-v9"
 					onViewportChange={this._onViewportChange}>
             {this.props.cities.map((city, i) => (
@@ -141,7 +203,7 @@ class WorldMap extends Component {
                 <h4 className="markerHeader">{city.city}</h4>
                 <hr />
                 <p>Population: {city.population}</p>
-               // <img src={city.image} alt="city image"/>
+              
 
               </div>
 							<svg>
@@ -162,6 +224,64 @@ class WorldMap extends Component {
 						</Marker>
 					))}
           </MapGL>
+          <Slider
+            className="slider"
+            style={sliderStyle}
+            min={0}
+            max={this.props.cities.length}
+            value={this.state.sliderValue}
+            onChange={this.onSliderChange}
+            onBeforeChange={() => this.tl.pause()}
+            onAfterChange={this.onAfterChange}
+          />
+         
+          <div className="mapControls">
+           
+          	<Tooltip
+						placement="top"
+						title={<span style={{ fontSize: "14px" }}>Play</span>}>
+						<Fab
+							color="inherit"
+							size="small"
+							aria-label="add"
+							onClick={() => this.tl.play()}>
+							<PlayIcon /> 
+						</Fab>
+					</Tooltip>
+					<Tooltip
+						placement="top"
+						title={<span style={{ fontSize: "14px" }}>Pause</span>}>
+						<Fab
+							color="inherit"
+							size="small"
+							aria-label="add"
+							onClick={() => this.tl.pause()}>
+							<PauseIcon />
+						</Fab>
+					</Tooltip>
+					<Tooltip
+						placement="top"
+						title={<span style={{ fontSize: "14px" }}>Reverse</span>}>
+						<Fab
+							color="inherit"
+							size="small"
+							aria-label="add"
+							onClick={() => this.tl.reverse()}>
+							<ReverseIcon />
+						</Fab>
+					</Tooltip>
+					<Tooltip
+						placement="top"
+						title={<span style={{ fontSize: "14px" }}>Restart</span>}>
+						<Fab
+							color="inherit"
+							size="small"
+							aria-label="add"
+							onClick={() => this.tl.restart()}>
+							<RestartIcon />
+						</Fab>
+					</Tooltip>
+          </div>
       </div>
     );
   }
