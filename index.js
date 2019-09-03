@@ -12,7 +12,7 @@ class App extends Component {
   constructor() {
     super();
     this.state = {
-     
+     cities: []
     };
   }
   componentDidMount(){
@@ -21,33 +21,34 @@ class App extends Component {
   getWorldCitiiesData(){
     		this.setState({ loadingData: true }, () => {
 			const Papa = require("papaparse");
-		("../../data/mapDataV.csv");
-			return new Promise(resolve => {
-				Papa.parse("./worldcities.csv", {
-					//download: true,
+      const dataFilePath = "https://github.com/Unionindesign/react-mapbox-animated-world-map/blob/master/worldcities.csv"
+				return new Promise(resolve => {
+				Papa.parse(dataFilePath, {
+					download: true,
+          /delimiter: ",",
 					header: false, //Don't use column names from 1st row in csv! These are assigned when creating Keys for JSON below!
 					skipEmptyLines: true,
 					complete: result => {
 							console.log(
 							"--------\n" +
-								"Map data: " +
+								"raw data: " +
 							
-								"\n--------" + result.data
+								"\n--------" + JSON.stringify(result)
 						);
-
+            resolve(result)
 						let mapData = result.data.map(city => {
 							return {
 								id: city[11],
                 city: city[0],
-                lat: city.lat,
+                lat: city[2],
                 lng: city.lng
 
 							};
               
 						});
 					console.log("Map Data: ", mapData)
-						
-					}
+						this.setState({cities: mapData})
+          }
 				});
 			});
 		});
@@ -56,7 +57,10 @@ class App extends Component {
   render() {
     return (
       <div>
-       <WorldMap/>
+       <WorldMap cities={this.state.cities}/>
+       <div className="belowMap">
+       <p>map data provided by <a href="https://simplemaps.com/data/us-cities"> simplemaps.com</a></p>
+       </div>
       </div>
     );
   }
