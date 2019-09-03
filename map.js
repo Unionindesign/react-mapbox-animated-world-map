@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import MapGL, { Marker } from "react-map-gl";
 import { render } from 'react-dom';
 import './style.css';
+import { TimelineMax, TweenMax, Power3 } from "gsap";
 //import _ from "lodash"
 
 //mapbox public access token - in their docs here:
@@ -11,8 +12,9 @@ const TOKEN = "pk.eyJ1Ijoic3RlcGhlbi1tYXJzaGFsbCIsImEiOiJjanB2aWxlNWMwMHV3NDJraj
 class WorldMap extends Component {
   constructor() {
     super();
-    //ref to map markers
+    //ref to map markers && popups
     this.MapMarkers=[]
+    this.markerPopups=[]
     this.state = {
       viewport: {
 				width: window.innerWidth,
@@ -43,7 +45,62 @@ class WorldMap extends Component {
 	};
   componentDidMount(){
     //console.log("Props Check: ", this.props.cities)
+    this.animateMapMarkers()
   }
+  animateMapMarkers(){
+    this.tl = new TimelineMax({
+			//onUpdate: this.timelineProgressChecker,
+			// onUpdateParams: ["{self}"],
+			// onUpdateScope: this,
+			repeat: -1,
+			paused: true
+		});
+		// let numBookings = this.props.onTheMap.length;
+		let duration = this.props.timelineDelay / numBookings;
+		this.tl
+			.staggerFromTo(
+				this.MapMarkers,
+				0.5,
+				{ autoAlpha: 0, scale: 3 },
+				{ autoAlpha: 1, scale: 1 },
+				duration,
+				duration
+			)
+			.staggerFromTo(
+				this.markerPopups,
+				1,
+				{ autoAlpha: 0, scale: 0 },
+				{ autoAlpha: 0.7, scale: 1, ease: Power3.easeInOut, rotation: 360 },
+				duration,
+				duration
+			)
+			.staggerTo(
+				this.markerPopups,
+				1,
+				{
+					autoAlpha: 0,
+					delay: 3,
+					scale: 0,
+					ease: Power3.easeInOut,
+					rotation: -360
+				},
+				duration,
+				duration,
+				this.onCompleteAll
+			)
+			.staggerTo(
+				this.MapMarkers,
+				2,
+				{ scale: 1 },
+				duration,
+				this.onCompleteAll
+			)
+			.play();
+	};
+  onCompleteAll() {
+		console.log("Animation complete");
+  };
+  
   	markersizer = pop => {
       //let pop = pop.replace(/,/g, '')
 		if (pop < 600000) {
@@ -61,7 +118,6 @@ class WorldMap extends Component {
     } else if (pop >= 80000000) {
       return 8;
     }
-
 	};
 
   render() {
@@ -80,6 +136,14 @@ class WorldMap extends Component {
 							longitude={city.longitude}
 							offsetLeft={-20}
 							offsetTop={-10}>
+              <div className="markerContainer">
+              <div className="markerPopup" ref={e => (this.markerPopups[i] = e)}>
+                <h4 className="markerHeader">{city.city}</h4>
+                <hr />
+                <p>Population: {city.population}</p>
+               // <img src={city.image} alt="city image"/>
+
+              </div>
 							<svg>
 									<circle
 										cx={12}
@@ -94,6 +158,7 @@ class WorldMap extends Component {
 										}}
 									/>
 								</svg>
+                </div>
 						</Marker>
 					))}
           </MapGL>

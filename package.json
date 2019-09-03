@@ -6,7 +6,8 @@
     "lodash": "4.17.15",
     "react": "16.9.0",
     "react-dom": "16.9.0",
-    "react-map-gl": "5.0.10"
+    "react-map-gl": "5.0.10",
+    "gsap": "^2.0.2",
   },
   "scripts": {
     "start": "react-scripts start",
