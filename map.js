@@ -59,18 +59,43 @@ class WorldMap extends Component {
     console.log("========\n Mounted \n========\n")
     
   }
-  componentDidUpdate(){
-    console.log("========\n Updated \n========\n")
-    this.animateMapMarkers()
-    console.log("Progress on update: ", this.tl.progress())
-  }
+  // componentDidUpdate(){
+  //   console.log("========\n Updated \n========\n")
+  //   this.animateMapMarkers()
+  //   console.log("Progress on update: ", this.tl.progress())
+  // }
+  	componentDidUpdate(prevProps, prevState) {
+		//console.log("===============\nUpdated\n==============");
+		if (_.isNull(this.tl)) {
+			console.log("Timeline is null on update, calling animation");
+			this.animateMapMarkers();
+		} else if (_.isUndefined(this.tl)) {
+			console.log("Timeline Undefined on update, calling animation");
+			this.animateMapMarkers();
+		} else if (
+			this.tl.isActive() &&
+			_.isEqual(prevProps.onTheMap, this.props.onTheMap) &&
+			!_.isEqual(prevState.viewport, this.state.viewport)
+		) {
+			console.log(
+				"Timeline isActive on update,viewport changed, no new data - pause and resume"
+			);
+			this.tl.pause().play();
+		} else if (
+			this.tl.isActive() &&
+			!_.isEqual(prevProps.onTheMap, this.props.onTheMap)
+		) {
+			console.log(
+				"Timeline isActive on update, new data and props, kill and restart"
+			);
+			//kills the timeline when data set updates
+			this.tl.pause(this.tl.duration()).kill();
+			this.animateMapMarkers();
+		}
+	}
   animateMapMarkers(){
     this.tl = new TimelineMax({
-      //Creates infinte loop as timeline is undefined?
-			//onUpdate: this.updateSlider,
-      //adding scope or params not helping
-			// onUpdateParams: ["{self}"],
-			// onUpdateScope: this,
+			onUpdate: this.updateSlider,
 			repeat: -1,
 			paused: true
 		});
@@ -133,20 +158,9 @@ class WorldMap extends Component {
 		console.log("Animation complete");
 	}
 	updateSlider() {
-		if (_.isUndefined(this.tl)) {
-			return null;
-			console.log("Timeline Undefined");
-			setTimeout(this.updateSlider.bind(this), 0.5);
-		} else if (_.isNull(this.tl)) {
-			return null;
-			console.log("Timeline is null");
-			setTimeout(this.updateSlider.bind(this), 0.5);
-		} else {
-		this.setState({
-			//...this.state.sliderValue,
+			this.setState({
 			sliderValue: Math.round(this.tl.progress() * this.props.cities.length)
 		});
-		}
 	}
    //Mapbox viewport for resize, zoom pan etc
 	_onViewportChange = viewport => {
@@ -164,7 +178,7 @@ class WorldMap extends Component {
 			this.setState({ viewport });
 		}
 	};
-  
+  //makes the Map markers larger based on input...in this case Population
   	markersizer = pop => {
 		if (pop < 600000) {
 			return 2;
