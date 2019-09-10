@@ -4,6 +4,29 @@ h1, p {
 li {
   list-style: none;
 }
+.mapboxContainer {
+  position: absolute;
+}
+.onTopOfMap {
+  position: absolute;
+  top: 4%;
+  left: 80%;
+  z-index: 1000;
+  background-color: white;
+  border-radius: 9px;
+  border: 1px solid #afafaf
+}
+.onTopOfMap {
+  text-align: center;
+}
+.onTopOfMap h4 {
+  background-color: #afafaf;
+  border-radius: 9px 9px 0 0;
+  margin-top: 0;
+}
+.mapMarker:hover {
+  cursor: pointer;
+}
 .markerPopup {
   background-color: #585858;
 	opacity: 0.7;
@@ -25,6 +48,13 @@ li {
   float: right;
   margin-top: -3px;
 }
+
 .mapControls {
   margin: 30px 0px 0px 0px
+}
+.dataSelectorList {
+  margin-top: -5px;
+}
+.dataSelectorList li {
+  float: left;
 }

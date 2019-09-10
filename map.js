@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import MapGL, { Marker } from "react-map-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
 import { render } from 'react-dom';
 import './style.css';
 import { TimelineMax, TweenMax, Power3 } from "gsap";
@@ -35,8 +36,8 @@ class WorldMap extends Component {
 				width: window.innerWidth,
 				height: window.innerHeight * 0.8,
 				latitude: 37.785164,
-				longitude: -100,
-				zoom: 1,
+				longitude: -80,
+				zoom: 2.75,
 				pitch: 0
 			},
       sliderValue: 0
@@ -45,9 +46,6 @@ class WorldMap extends Component {
     this.tl = null;
     // timeline callback
 		this.updateSlider = this.updateSlider.bind(this);
-		//whale animation for large bookings
-		//this.theWhale = this.theWhale.bind(this);
-
 		// slider callbacks
 		this.onSliderChange = this.onSliderChange.bind(this);
 		this.onAfterChange = this.onAfterChange.bind(this);
@@ -57,7 +55,7 @@ class WorldMap extends Component {
     //console.log("Props Check: ", this.props.cities)
     //animations won't work when called in didMount
     //this.animateMapMarkers()
-    console.log("========\n Mounted \n========\n")
+    console.log("========\n Mounted \n========\n");
     
   }
 
@@ -96,7 +94,6 @@ class WorldMap extends Component {
 			repeat: -1,
 			paused: true
 		});
-		// let numBookings = this.props.onTheMap.length;
 		let duration = 5;
 		this.tl
 			.staggerFromTo(
@@ -144,7 +141,7 @@ class WorldMap extends Component {
   };
   //slider callbacks
 	onSliderChange(value) {
-		this.tl.progress(value / this.props.cities.length);
+		this.tl.progress(value / this.props.onTheMap.length);
 	}
 	onAfterChange(value) {
 		console.log("Slider value: ", value);
@@ -156,7 +153,7 @@ class WorldMap extends Component {
 	}
 	updateSlider() {
 			this.setState({
-			sliderValue: Math.round(this.tl.progress() * this.props.cities.length)
+			sliderValue: Math.round(this.tl.progress() * this.props.onTheMap.length)
 		});
 	}
    //Mapbox viewport for resize, zoom pan etc
@@ -221,7 +218,7 @@ class WorldMap extends Component {
 					//viewport={this.state.viewport}
 					mapStyle="mapbox://styles/mapbox/dark-v9"  //<-- Dark Mode
 					onViewportChange={this._onViewportChange}>
-            {this.props.cities.map((city, i) => (
+            {this.props.onTheMap.map((city, i) => (
 						<Marker
 							key={i}
 							latitude={city.latitude}
@@ -237,16 +234,16 @@ class WorldMap extends Component {
                 </h4>
                 <hr />
                 <ul>
-                  <li>Population: {city.population}</li> 
+                  <li>Population: {(city.population).toLocaleString()}</li> 
                   <li>State: {city.state}</li>
                 </ul>
               </div>
-							<svg onClick={this.handleOpenPopup(i)}>
+							<svg onClick={this.handleOpenPopup(i)} className="mapMarker">
 									<circle
 										cx={12}
 										cy={12}
-                    //manipulating string data to show larger radius marker based on population
-										r={this.markersizer(parseInt(city.population)*1000)}
+                    //show larger radius marker based on population
+										r={this.markersizer(city.population)}
 										ref={e => (this.MapMarkers[i] = e)}
 										style={{
 											fill: "red",
@@ -263,7 +260,7 @@ class WorldMap extends Component {
             className="slider"
             style={sliderStyle}
             min={0}
-            max={this.props.cities.length}
+            max={this.props.onTheMap.length}
             value={this.state.sliderValue}
             onChange={this.onSliderChange}
             onBeforeChange={() => this.tl.pause()}

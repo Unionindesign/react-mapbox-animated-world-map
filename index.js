@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { render } from 'react-dom';
 import './style.css';
 import WorldMap from "./map.js"
+import FilterIcon from "@material-ui/icons/TouchApp";
 
 
 class App extends Component {
@@ -30,19 +31,107 @@ class App extends Component {
               {"city":"Denver","population":600158,"state":"Colorado","latitude":39.7618,"longitude":-104.8806},
               {"city":"El Paso","population":649121,"state":"Texas","latitude":31.8484,"longitude":-106.4270}
      ],
-     loadingData: false
+     loading: false,
+     onTheMap: [],
+     pop500kto750k: [],
+     pop750kto1M: [],
+     pop1MandUp: []
+
     };
   }
-  
+componentDidMount(){
+  this.dataFilter()
+}
+dataFilter(){
+  const pop500kto750k = this.state.cities.filter(city => {
+    return city.population > 500000 && city.population < 750000
+  })
+  console.log("500k to 750k: ", pop500kto750k);
+
+  const pop750kto1M = this.state.cities.filter(city => {
+    return city.population > 750000 && city.population < 1000000
+  })
+  console.log("750k to 1M: ", pop750kto1M);
+
+  const pop1MandUp = this.state.cities.filter(city => {
+    return city.population > 1000000
+  })
+  console.log("MOre than 1M: ", pop1MandUp);
+  this.setState({
+    //initially, load the entire data set
+    onTheMap: this.state.cities,
+    //set state for the smaller data sets so they can be selected by user and passed down as 'onTheMap' props
+    pop500kto750k: pop500kto750k,
+    pop750kto1M: pop750kto1M,
+    pop1MandUp: pop1MandUp,
+  });
+}
+handleAllCitiesSelect = () => {
+  this.setState({onTheMap: this.state.cities})
+}
+handleDataSelect500k = () => {
+  this.setState({onTheMap: this.state.pop500kto750k})
+}  
+handleDataSelect750k = () => {
+  this.setState({onTheMap: this.state.pop750kto1M})
+}
+handleDataSelect1M = () => {
+  this.setState({onTheMap: this.state.pop1MandUp})
+}
 render() {
     return (
       <div>
-       <WorldMap cities={this.state.cities}/>
-       <div className="belowMap">
-        <h4>Here is an example of animated Map Markers using mapbox, react, and GSAP. The data is from a <a href="https://uber.github.io/react-map-gl/#/Examples/markers-popups">Mapbox Demo</a> and is available <a href="https://github.com/uber/react-map-gl/blob/master/examples/data/cities.json">HERE</a>
-        </h4>
+      <div className="onTopOfMap">
+          <h4><FilterIcon/> Data Filters: </h4>
+          <h5> select cities based<br/> on population:</h5>
+          <ul className="dataSelectorList">
+             <li>
+              <input
+                type="radio"
+                value="all"
+                name="dataSelector"
+                onChange={this.handleAllCitiesSelect}
+              />
+              all (default)
+            </li>
+            <li>
+              <input
+                type="radio"
+                value="500"
+                name="dataSelector"
+                onChange={this.handleDataSelect500k}
+              />
+              500k - 750k
+            </li>
+            <li>
+              <input
+                type="radio"
+                value="750"
+                name="dataSelector"
+                onChange={this.handleDataSelect750k}
+              />
+              750k - 1M
+            </li>
+            <li>
+              <input
+                type="radio"
+                value="1M"
+                name="dataSelector"
+                onChange={this.handleDataSelect1M}
+              />
+             1M or more
+            </li>
+        </ul>
+       </div> 
+      <div className="mapboxContainer">
+       <WorldMap onTheMap={this.state.onTheMap}/>
+        <div className="belowMap">
+          <h4>Here is an example of animated Map Markers using mapbox, react, and GSAP. The data is from a <a href="https://uber.github.io/react-map-gl/#/Examples/markers-popups">Mapbox Demo</a> and is available <a href="https://github.com/uber/react-map-gl/blob/master/examples/data/cities.json">HERE</a>. I've made a few edits to make the data more manageable and speed up rendering.
+          </h4>
+        </div>
        </div>
       </div>
+     // </div>
     );
   }
 }
