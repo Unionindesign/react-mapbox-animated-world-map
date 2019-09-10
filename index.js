@@ -40,7 +40,14 @@ class App extends Component {
     };
   }
 componentDidMount(){
+   //initially, load the entire data set
+  // this.setState({onTheMap: this.state.cities})
+  //function that breaks up the data set into smaller chunks
   this.dataFilter()
+}
+componentDidUpdate(){
+  console.log("========\n Container Updated \n========\n");
+  console.log("Check for updates to state for smaller data sets. \nNumber of cities 500k - 750k: " + this.state.pop500kto750k.length + "\nNumber of cities 750k - 1M: " + this.state.pop500kto750k.length + "\nNumber of cities over 1M: "+ this.state.pop1MandUp.length)
 }
 dataFilter(){
   const pop500kto750k = this.state.cities.filter(city => {
@@ -56,11 +63,10 @@ dataFilter(){
   const pop1MandUp = this.state.cities.filter(city => {
     return city.population > 1000000
   })
-  console.log("MOre than 1M: ", pop1MandUp);
+  console.log("More than 1M: ", pop1MandUp);
+  
   this.setState({
-    //initially, load the entire data set
     onTheMap: this.state.cities,
-    //set state for the smaller data sets so they can be selected by user and passed down as 'onTheMap' props
     pop500kto750k: pop500kto750k,
     pop750kto1M: pop750kto1M,
     pop1MandUp: pop1MandUp,

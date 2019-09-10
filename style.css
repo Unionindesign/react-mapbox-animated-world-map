@@ -53,8 +53,11 @@ li {
   margin: 30px 0px 0px 0px
 }
 .dataSelectorList {
-  margin-top: -5px;
+  margin-top: -10px;
 }
 .dataSelectorList li {
   float: left;
+}
+.dataSelectorList input:hover {
+  cursor: pointer;
 }

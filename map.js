@@ -55,7 +55,7 @@ class WorldMap extends Component {
     //console.log("Props Check: ", this.props.cities)
     //animations won't work when called in didMount
     //this.animateMapMarkers()
-    console.log("========\n Mounted \n========\n");
+    console.log("========\n Map Mounted \n========\n");
     
   }
 
