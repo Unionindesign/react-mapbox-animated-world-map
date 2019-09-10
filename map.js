@@ -31,6 +31,14 @@ class WorldMap extends Component {
     //ref to map markers && popups
     this.MapMarkers=[]
     this.markerPopups=[]
+    //ref callbacks - not working in constructor
+    //allows you to select different data sets, but refs are null and animations not triggered?
+    // this.setMarkerRef = i => e => {
+		// 	this.MapMarkers[i] = e;
+		// };
+		// this.setPopupRef = i => e => {
+		// 	this.markerPopups[i] = e;
+		// };
     this.state = {
       viewport: {
 				width: window.innerWidth,
@@ -49,6 +57,9 @@ class WorldMap extends Component {
 		// slider callbacks
 		this.onSliderChange = this.onSliderChange.bind(this);
 		this.onAfterChange = this.onAfterChange.bind(this);
+    //binding ref callbacks...
+    //  this.setMarkerRef = this.setMarkerRef.bind(this);
+		// this.setPopupRef = this.setPopupRef.bind(this);
   }
  
   componentDidMount(){
@@ -124,14 +135,14 @@ class WorldMap extends Component {
 				},
 				duration,
 				duration,
-				//this.onCompleteAll
+				this.onCompleteAll
 			)
 			.staggerTo(
 				this.MapMarkers,
 				2,
 				{ scale: 1 },
 				duration,
-				//this.onCompleteAll
+				this.onCompleteAll
 			)
 			.play();
 	};
@@ -226,7 +237,10 @@ class WorldMap extends Component {
 							offsetLeft={-20}
 							offsetTop={-10}>
               <div className="markerContainer">
-              <div className="markerPopup" ref={e => (this.markerPopups[i] = e)}>
+              <div className="markerPopup" 
+              //not working...
+              //ref={this.setPopupRef}
+              ref={e => (this.markerPopups[i] = e)}>
                 <h4 className="markerHeader">{city.city}
                   <span onClick={this.handleClosePopup(i)}>
                       <CloseIcon />
@@ -244,6 +258,8 @@ class WorldMap extends Component {
 										cy={12}
                     //show larger radius marker based on population
 										r={this.markersizer(city.population)}
+                    //not working...
+                    //ref={this.setMarkerRef}
 										ref={e => (this.MapMarkers[i] = e)}
 										style={{
 											fill: "red",
