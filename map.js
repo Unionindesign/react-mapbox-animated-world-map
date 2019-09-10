@@ -9,6 +9,7 @@ import PlayIcon from "@material-ui/icons/PlayArrow";
 import PauseIcon from "@material-ui/icons/Pause";
 import ReverseIcon from "@material-ui/icons/FastRewind";
 import RestartIcon from "@material-ui/icons/SkipPrevious";
+import CloseIcon from "@material-ui/icons/HighlightOff";
 import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
 import _ from "lodash"
@@ -59,11 +60,7 @@ class WorldMap extends Component {
     console.log("========\n Mounted \n========\n")
     
   }
-  // componentDidUpdate(){
-  //   console.log("========\n Updated \n========\n")
-  //   this.animateMapMarkers()
-  //   console.log("Progress on update: ", this.tl.progress())
-  // }
+
   	componentDidUpdate(prevProps, prevState) {
 		//console.log("===============\nUpdated\n==============");
 		if (_.isNull(this.tl)) {
@@ -196,7 +193,25 @@ class WorldMap extends Component {
       return 8;
     }
 	};
-
+  //Tooltips
+	handleOpenPopup = i => e => {
+		e.persist();
+		TweenMax.fromTo(
+			this.markerPopups[i],
+			1,
+			{ autoAlpha: 0, scale: 0 },
+			{ autoAlpha: 0.85, scale: 1, ease: Power3.easeInOut, rotation: 360 }
+		);
+	};
+	handleClosePopup = i => e => {
+		e.persist();
+		TweenMax.to(this.markerPopups[i], 1, {
+			autoAlpha: 0,
+			scale: 0,
+			ease: Power3.easeInOut,
+			rotation: -360
+		});
+	};
   render() {
     return (
       <div className="mapContainer">
@@ -204,7 +219,7 @@ class WorldMap extends Component {
 					mapboxApiAccessToken={TOKEN}
 					{...this.state.viewport}
 					//viewport={this.state.viewport}
-					mapStyle="mapbox://styles/mapbox/dark-v9"
+					mapStyle="mapbox://styles/mapbox/dark-v9"  //<-- Dark Mode
 					onViewportChange={this._onViewportChange}>
             {this.props.cities.map((city, i) => (
 						<Marker
@@ -215,13 +230,18 @@ class WorldMap extends Component {
 							offsetTop={-10}>
               <div className="markerContainer">
               <div className="markerPopup" ref={e => (this.markerPopups[i] = e)}>
-                <h4 className="markerHeader">{city.city}</h4>
+                <h4 className="markerHeader">{city.city}
+                  <span onClick={this.handleClosePopup(i)}>
+                      <CloseIcon />
+                    </span>
+                </h4>
                 <hr />
-                <p>Population: {city.population}</p>
-              
-
+                <ul>
+                  <li>Population: {city.population}</li> 
+                  <li>State: {city.state}</li>
+                </ul>
               </div>
-							<svg>
+							<svg onClick={this.handleOpenPopup(i)}>
 									<circle
 										cx={12}
 										cy={12}
