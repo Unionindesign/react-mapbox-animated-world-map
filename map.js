@@ -105,10 +105,13 @@ class WorldMap extends Component {
 			repeat: -1,
 			paused: true
 		});
-		let duration = 5;
+		const duration = 5;
+    //use lodash to remove falsey values from refs, as null values are added when the component updates without unmounting
+    const markers = _.compact(this.MapMarkers)
+    const popups = _.compact(this.markerPopups)
 		this.tl
 			.staggerFromTo(
-				this.MapMarkers,
+			markers,
 				0.5,
 				{ autoAlpha: 0, scale: 3 },
 				{ autoAlpha: 1, scale: 1 },
@@ -116,7 +119,7 @@ class WorldMap extends Component {
 				duration
 			)
 			.staggerFromTo(
-				this.markerPopups,
+				popups,
 				1,
 				{ autoAlpha: 0, scale: 0 },
 				{ autoAlpha: 0.7, scale: 1, ease: Power3.easeInOut, rotation: 360 },
@@ -124,7 +127,7 @@ class WorldMap extends Component {
 				duration
 			)
 			.staggerTo(
-				this.markerPopups,
+				popups,
 				1,
 				{
 					autoAlpha: 0,
@@ -138,7 +141,7 @@ class WorldMap extends Component {
 				this.onCompleteAll
 			)
 			.staggerTo(
-				this.MapMarkers,
+				markers,
 				2,
 				{ scale: 1 },
 				duration,
