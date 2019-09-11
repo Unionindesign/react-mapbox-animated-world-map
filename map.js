@@ -31,14 +31,6 @@ class WorldMap extends Component {
     //ref to map markers && popups
     this.MapMarkers=[]
     this.markerPopups=[]
-    //ref callbacks - not working in constructor
-    //allows you to select different data sets, but refs are null and animations not triggered?
-    // this.setMarkerRef = i => e => {
-		// 	this.MapMarkers[i] = e;
-		// };
-		// this.setPopupRef = i => e => {
-		// 	this.markerPopups[i] = e;
-		// };
     this.state = {
       viewport: {
 				width: window.innerWidth,
@@ -57,17 +49,10 @@ class WorldMap extends Component {
 		// slider callbacks
 		this.onSliderChange = this.onSliderChange.bind(this);
 		this.onAfterChange = this.onAfterChange.bind(this);
-    //binding ref callbacks...
-    //  this.setMarkerRef = this.setMarkerRef.bind(this);
-		// this.setPopupRef = this.setPopupRef.bind(this);
   }
  
   componentDidMount(){
-    //console.log("Props Check: ", this.props.cities)
-    //animations won't work when called in didMount
-    //this.animateMapMarkers()
     console.log("========\n Map Mounted \n========\n");
-    
   }
 
   	componentDidUpdate(prevProps, prevState) {
